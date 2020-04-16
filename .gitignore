@@ -1,1 +1,3 @@
 config/
+.vscode/
+scripts/__pycache__/
