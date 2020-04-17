@@ -27,7 +27,8 @@ async def on_ready():
     await client.change_presence(activity=discord.Game(name='Animal Crossing New Horizons', type=1))
 
 
-@client.command()
+@client.command(name='ping',
+                description='pong')
 async def ping(ctx):
     await ctx.send('pong')
     
@@ -73,6 +74,7 @@ async def bot_info(ctx):
     await ctx.send(embed=embed)
  
  
+ 
 '''FRIEND CODES'''
 
 @client.command(name='add',
@@ -80,6 +82,15 @@ async def bot_info(ctx):
                 aliases=['addfc'])
 async def add_fc(ctx, *arg):
     ''' Currently adds user to friend code database.
+    
+    ![add|addfc] [friend code|fc] @User
+    
+    Note: if you use !addfc then there's no need to include 'friend code' or 'fc'
+    
+    Examples:
+        !add fc @Chonnasorn
+        !addfc @Chonnasorn
+        !add friend code @Chonnasorn
     '''
     if arg[0] == 'fc' or arg[:2] == ('friend', 'code'):
         user_id = ctx.message.author.id
@@ -99,6 +110,15 @@ async def add_fc(ctx, *arg):
                 aliases=['getfc'])
 async def get_fc(ctx, *arg):
     ''' Currently retrieves user's friend code from database.
+    
+    ![get|getfc] [friend code|fc] @User
+    
+    Note: if you use !getfc then there's no need to include 'friend code' or 'fc'
+    
+    Examples:
+        !get fc @Chonnasorn
+        !getfc @Chonnasorn
+        !get friend code @Chonnasorn
     '''
     mentioned_user_id = ctx.message.mentions[0].id
     friend_code = get_friend_code(mentioned_user_id)
@@ -110,14 +130,47 @@ async def get_fc(ctx, *arg):
 
 
 
-
 ''' TURNIPS '''
 @client.command(name='turnip',
-                description='Retrieves the turnip prophet link.')
+                description='Turnip commands.')
 async def turnip(ctx, *arg):
-    if arg[0] == 'prophet' or arg[0] == 'link':
-        await ctx.send(get_turnip_profit_link())
-
-
+    ''' Used to calculate turnip price trends. The two websites used are https://turnipprophet.io/ and https://ac-turnip.com/. To use this command:
+    !turnip [prophet|ac-turnip] [-b] p1 p2 p3 ... pn
+    
+    prophet: brings you to https://turnipprophet.io/ 
+    ac-turnip: brings you to https://ac-turnip.com/ 
+    -b: flag showing whether or not you're including the buying price. if not, ignore the flag
+    p1 p2 ... pn: prices going Monday AM, Monday PM, ..., Saturday PM. entering a price of 0 indicates that you missed that day.
+    
+    Examples:
+        !turnip prophet -b 101 78 94 65 0 44 
+        !turnip ac-turnip 87 65 107 113 120 119 110 90
+        !turnip prophet 0 0 0 0 90 0 56
+    '''
+    is_buying_price = arg[1] == '-b'
+    try:
+        if not is_buying_price:
+            int(arg[1])
+            
+    except ValueError:
+        pass
+        
+    else:
+        link = ''
+        cmd = arg[0]
+        
+        if is_buying_price:
+            arg = [int(i) for i in arg[2:]]
+        else:
+            arg = [int(i) for i in arg[1:]]
+            
+             
+        if cmd == 'prophet':
+            link = generate_turnip_prophet_link(arg, is_buying_price)  
+        elif cmd == 'ac-turnip':
+            link = generate_turnip_ac_turnip_link(arg, is_buying_price)
+        if link:
+            await ctx.send(link)
+        
 
 client.run(TOKEN)
