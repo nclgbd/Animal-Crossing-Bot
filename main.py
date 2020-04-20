@@ -83,14 +83,14 @@ async def bot_info(ctx):
 async def add_fc(ctx, *arg):
     ''' Currently adds user to friend code database.
     
-    ![add|addfc] [friend code|fc] @User
+    ![add|addfc] [friend code|fc] SW-XXXX-XXXX-XXXX
     
     Note: if you use !addfc then there's no need to include 'friend code' or 'fc'
     
     Examples:
-        !add fc @Chonnasorn
-        !addfc @Chonnasorn
-        !add friend code @Chonnasorn
+        !add fc SW-XXXX-XXXX-XXXX
+        !addfc SW-XXXX-XXXX-XXXX
+        !add friend code SW-XXXX-XXXX-XXXX
     '''
     if arg[0] == 'fc' or arg[:2] == ('friend', 'code'):
         user_id = ctx.message.author.id
@@ -137,40 +137,68 @@ async def turnip(ctx, *arg):
     ''' Used to calculate turnip price trends. The two websites used are https://turnipprophet.io/ and https://ac-turnip.com/. To use this command:
     !turnip [prophet|ac-turnip] [-b] p1 p2 p3 ... pn
     
+                OR
+                
+    !turnip [prophet|ac-turnip]
+    
     prophet: brings you to https://turnipprophet.io/ 
     ac-turnip: brings you to https://ac-turnip.com/ 
     -b: flag showing whether or not you're including the buying price. if not, ignore the flag
     p1 p2 ... pn: prices going Monday AM, Monday PM, ..., Saturday PM. entering a price of 0 indicates that you missed that day.
     
     Examples:
+        !turnip ac-turnip
+        !turnip prophet
         !turnip prophet -b 101 78 94 65 0 44 
         !turnip ac-turnip 87 65 107 113 120 119 110 90
         !turnip prophet 0 0 0 0 90 0 56
     '''
-    is_buying_price = arg[1] == '-b'
-    try:
-        if not is_buying_price:
-            int(arg[1])
-            
-    except ValueError:
-        pass
+    if len(arg) == 1:
+        if arg[0] == 'prophet':
+            await ctx.send('https://turnipprophet.io/')
         
+        elif arg[0] == 'ac-turnip':
+            await ctx.send('https://ac-turnip.com/')
+            # await ctx.send(discord.Embed(title=''))
+            
     else:
-        link = ''
-        cmd = arg[0]
-        
-        if is_buying_price:
-            arg = [int(i) for i in arg[2:]]
-        else:
-            arg = [int(i) for i in arg[1:]]
+        is_buying_price = arg[1] == '-b'
+        try:
+            if not is_buying_price:
+                int(arg[1])
+                
+        except ValueError:
+            pass
             
-             
-        if cmd == 'prophet':
-            link = generate_turnip_prophet_link(arg, is_buying_price)  
-        elif cmd == 'ac-turnip':
-            link = generate_turnip_ac_turnip_link(arg, is_buying_price)
-        if link:
-            await ctx.send(link)
-        
+        else:
+            link = ''
+            cmd = arg[0]
+            
+            if is_buying_price:
+                arg = [int(i) for i in arg[2:]]
+            else:
+                arg = [int(i) for i in arg[1:]]
+                
+            embed = None
+            if cmd == 'prophet':
+                link = generate_turnip_prophet_link(arg, is_buying_price)  
+            elif cmd == 'ac-turnip':
+                link, img_link = generate_turnip_ac_turnip_link(arg, is_buying_price)
+                print(img_link)
+                embed = discord.Embed(title='Turnip Price Trend',
+                                      description=link)
+                embed.set_image(url=img_link)
+            if link:
+                await ctx.send(link)
+                if embed:
+                    await ctx.send(embed=embed)
+  
+  
+  
+''' PLAYER PROFILE'''
+@client.command(name='get profile', 
+                description='gets a players profile')
+async def get_profile(ctx, *args):
+    print('test')
 
 client.run(TOKEN)
