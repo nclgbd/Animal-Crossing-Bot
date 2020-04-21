@@ -14,7 +14,7 @@ turnip_prophet_url = 'https://turnipprophet.io?prices='
 
 def generate_turnip_prophet_link(arg, is_buying_price):
     prophetlink = _replace_zeros_with_delimiter(arg, '.', is_buying_price=is_buying_price)
-    prophet_link = turnip_prophet_url+prophetlink+'.....'
+    prophet_link = turnip_prophet_url+prophetlink
     
     return prophet_link
 
@@ -34,8 +34,7 @@ def generate_img(link):
     # urls = [img['content'] for img in img_tags]
     # results = soup.findAll('img')
     print(img_tags)
-    
-    
+        
     
 def _replace_zeros_with_delimiter(arg, delimiter=',', is_buying_price=False):
     if is_buying_price:
